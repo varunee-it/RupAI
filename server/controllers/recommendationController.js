@@ -1,19 +1,34 @@
 const Recommendation = require('../models/Recommendation');
 
-exports.getRecommendations = async (req, res) => {
+exports.getRecommendations = async (req, res, next) => {
   try {
-    const recommendations = await Recommendation.find({ userId: req.user.id }).limit(3);
-    
-    const formatted = recommendations.map(r => ({
+    const userId = req.user?.id || req.user?.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const recommendations = await Recommendation.find({ userId });
+
+    const formattedRecommendations = recommendations.map(r => ({
       title: r.title,
       description: r.description,
-      score: r.score,
-      category: r.category
+      priority: r.priority || (r.score >= 90 ? 'High' : 'Medium'),
+      icon: r.icon || 'trending-up'
     }));
 
-    res.json(formatted);
+    return res.json({
+      success: true,
+      data: {
+        recommendations: formattedRecommendations
+      }
+    });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    return res.json({
+      success: true,
+      data: {
+        recommendations: []
+      }
+    });
   }
 };

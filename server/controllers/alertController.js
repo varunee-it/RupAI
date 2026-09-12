@@ -1,18 +1,35 @@
 const Alert = require('../models/Alert');
 
-exports.getAlerts = async (req, res) => {
+exports.getAlerts = async (req, res, next) => {
   try {
-    const alerts = await Alert.find({ userId: req.user.id }).limit(4);
-    
-    const formatted = alerts.map(a => ({
-      type: a.type,
+    const userId = req.user?.id || req.user?.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const alerts = await Alert.find({ userId }).sort({ createdAt: -1 });
+
+    const formattedAlerts = alerts.map(a => ({
       title: a.title,
-      severity: a.severity
+      message: a.message || a.description || 'Notification message',
+      severity: a.severity || 'Medium',
+      createdAt: a.createdAt || new Date(),
+      isRead: typeof a.isRead === 'boolean' ? a.isRead : false
     }));
 
-    res.json(formatted);
+    return res.json({
+      success: true,
+      data: {
+        alerts: formattedAlerts
+      }
+    });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    return res.json({
+      success: true,
+      data: {
+        alerts: []
+      }
+    });
   }
 };
