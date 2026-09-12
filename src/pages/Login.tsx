@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import bgImage from '../assets/bg.png';
 import { login } from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   ArrowRight, 
   ShieldCheck, 
@@ -16,147 +17,15 @@ import {
   Languages
 } from 'lucide-react';
 
-// Full i18n Translations Dictionary for English, Hindi, Gujarati
-const translations = {
-  en: {
-    langName: 'English',
-    // Left panel
-    brandHeadline1: 'Your AI',
-    brandHeadline2: 'Financial Companion',
-    brandHeadline3: 'for Bharat',
-    brandDesc: 'Smarter Insights. Better Decisions. A Brighter Tomorrow.',
-    leftFeature1Title: 'AI-Powered Insights',
-    leftFeature1Desc: 'Personalized for your goals',
-    leftFeature2Title: 'Bank-grade Security',
-    leftFeature2Desc: 'Your data, always protected',
-    leftFeature3Title: 'Made for Bharat',
-    leftFeature3Desc: 'Multiple languages, real solutions',
-    leftFooterTag: 'BANKING FOR A BRIGHTER BHARAT',
-
-    // Center Login Card
-    welcomeTitle: 'Welcome Back',
-    welcomeSubtitle: 'Sign in to continue your financial journey',
-    
-    // Blue Card Banner
-    cardTitle: 'RupAI Smart Banking',
-    cardDesc: 'Experience intelligent banking powered by AI and designed for every Indian.',
-    pillLoan: 'Smart Loan Eligibility',
-    pillAssistant: 'Multilingual AI Assistant',
-    pillAlerts: 'Fraud & EMI Smart Alerts',
-    cardFooterAi: 'AI Powered',
-    cardFooterSecurity: 'Private & RBI Ready',
-
-    // Form
-    emailLabel: 'Email address',
-    emailPlaceholder: 'you@example.com',
-    passwordLabel: 'Password',
-    rememberMe: 'Remember me',
-    forgotPassword: 'Forgot password?',
-    continueBtn: 'Continue',
-    demoBtn: 'Explore RupAI Demo',
-
-    // Bottom badges
-    badgeSecurity: 'Bank-grade Security',
-    badgeLanguages: 'Gujarati • Hindi and more',
-    badgeAi: 'AI Personalized'
-  },
-  hi: {
-    langName: 'हिंदी (Hindi)',
-    // Left panel
-    brandHeadline1: 'आपका एआई',
-    brandHeadline2: 'वित्तीय साथी',
-    brandHeadline3: 'भारत के लिए',
-    brandDesc: 'स्मार्ट अंतर्दृष्टि। बेहतर फैसले। एक उज्ज्वल भविष्य।',
-    leftFeature1Title: 'एआई-संचालित अंतर्दृष्टि',
-    leftFeature1Desc: 'आपके लक्ष्यों के लिए व्यक्तिगत',
-    leftFeature2Title: 'बैंक-स्तरीय सुरक्षा',
-    leftFeature2Desc: 'आपका डेटा, हमेशा सुरक्षित',
-    leftFeature3Title: 'भारत के लिए निर्मित',
-    leftFeature3Desc: 'अनेक भाषाएं, वास्तविक समाधान',
-    leftFooterTag: 'उज्ज्वल भारत के लिए बैंकिंग',
-
-    // Center Login Card
-    welcomeTitle: 'वापसी पर स्वागत है',
-    welcomeSubtitle: 'अपनी वित्तीय यात्रा जारी रखने के लिए साइन इन करें',
-    
-    // Blue Card Banner
-    cardTitle: 'रूपएआई स्मार्ट बैंकिंग',
-    cardDesc: 'एआई द्वारा संचालित और हर भारतीय के लिए डिज़ाइन की गई बुद्धिमान बैंकिंग का अनुभव करें।',
-    pillLoan: 'स्मार्ट ऋण पात्रता',
-    pillAssistant: 'बहुभाषी एआई सहायक',
-    pillAlerts: 'धोखाधड़ी और ईएमआई स्मार्ट अलर्ट',
-    cardFooterAi: 'एआई संचालित',
-    cardFooterSecurity: 'निजी और आरबीआई तैयार',
-
-    // Form
-    emailLabel: 'ईमेल पता',
-    emailPlaceholder: 'you@example.com',
-    passwordLabel: 'पासवर्ड',
-    rememberMe: 'मुझे याद रखें',
-    forgotPassword: 'पासवर्ड भूल गए?',
-    continueBtn: 'आगे बढ़ें',
-    demoBtn: 'रूपएआई डेमो देखें',
-
-    // Bottom badges
-    badgeSecurity: 'बैंक-स्तरीय सुरक्षा',
-    badgeLanguages: 'गुजराती • हिंदी और अधिक',
-    badgeAi: 'एआई व्यक्तिगत'
-  },
-  gu: {
-    langName: 'ગુજરાતી (Gujarati)',
-    // Left panel
-    brandHeadline1: 'તમારું એઆઈ',
-    brandHeadline2: 'નાણાકીય સાથી',
-    brandHeadline3: 'ભારત માટે',
-    brandDesc: 'સ્માર્ટ આંતરદ્રષ્ટિ. વધુ સારા નિર્ણયો. એક તજસ્વી ભવિષ્ય.',
-    leftFeature1Title: 'એઆઈ-સંચાલિત આંતરદ્રષ્ટિ',
-    leftFeature1Desc: 'તમારા લક્ષ્યો માટે વ્યક્તિગત',
-    leftFeature2Title: 'બેંક-સ્તરની સુરક્ષા',
-    leftFeature2Desc: 'તમારો ડેટા, હંમેશા સુરક્ષિત',
-    leftFeature3Title: 'ભારત માટે બનાવેલ',
-    leftFeature3Desc: 'અનેક ભાષાઓ, વાસ્તવિક ઉકેલો',
-    leftFooterTag: 'ઉજ્જવળ ભારત માટે બેંકિંગ',
-
-    // Center Login Card
-    welcomeTitle: 'પાછા સ્વાગત છે',
-    welcomeSubtitle: 'તમારી નાણાકીય મુસાફરી ચાલુ રાખવા માટે સાઇન ઇન કરો',
-    
-    // Blue Card Banner
-    cardTitle: 'રૂપએઆઈ સ્માર્ટ બેંકિંગ',
-    cardDesc: 'એઆઈ દ્વારા સંચાલિત અને દરેક ભારતીય માટે રચાયેલ બુદ્ધિશાળી બેંકિંગનો અનુભવ કરો.',
-    pillLoan: 'સ્માર્ટ લોન પાત્રતા',
-    pillAssistant: 'બહુભાષી એઆઈ સહાયક',
-    pillAlerts: 'છેતરપિંડી અને ઈએમઆઈ સ્માર્ટ એલર્ટ',
-    cardFooterAi: 'એઆઈ સંચાલિત',
-    cardFooterSecurity: 'ખાનગી અને આરબીઆઈ તૈયાર',
-
-    // Form
-    emailLabel: 'ઈમેઇલ સરનામું',
-    emailPlaceholder: 'you@example.com',
-    passwordLabel: 'પાસવર્ડ',
-    rememberMe: 'મને યાદ રાખો',
-    forgotPassword: 'પાસવર્ડ ભૂલી ગયા છો?',
-    continueBtn: 'આગળ વધો',
-    demoBtn: 'રૂપએઆઈ ડેમો જુઓ',
-
-    // Bottom badges
-    badgeSecurity: 'બેંક-સ્તરની સુરક્ષા',
-    badgeLanguages: 'ગુજરાતી • હિન્દી અને વધુ',
-    badgeAi: 'એઆઈ વ્યક્તિગત'
-  }
-};
-
 export default function Login() {
   const navigate = useNavigate();
+  const { t, currentLanguage, setLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('demo@rupai.com');
   const [password, setPassword] = useState('123456');
   const [errorMsg, setErrorMsg] = useState('');
-  const [langKey, setLangKey] = useState<'en' | 'hi' | 'gu'>('en');
   const [isLangOpen, setIsLangOpen] = useState(false);
-
-  const t = translations[langKey];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,28 +48,19 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = async (e: React.MouseEvent) => {
+  const handleDemoLogin = (e: React.MouseEvent) => {
     e.preventDefault();
-    setEmail('demo@rupai.com');
-    setPassword('123456');
-    setIsLoading(true);
-    setErrorMsg('');
-    try {
-      const data = await login('demo@rupai.com', '123456');
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
-      navigate('/dashboard');
-    } catch (err: any) {
-      console.error("Demo login error:", err);
-      // Fallback navigation for offline mode
-      navigate('/dashboard');
-    } finally {
-      setIsLoading(false);
-    }
+    
+    // Store demo session locally without backend API call
+    localStorage.setItem('token', 'demo-token');
+    localStorage.setItem('user', JSON.stringify({
+      id: "demo-user",
+      name: "Varun",
+      email: "demo@rupai.com",
+      isDemo: true
+    }));
+
+    navigate('/dashboard');
   };
 
   return (
@@ -399,7 +259,11 @@ export default function Login() {
                 />
                 <span className="ml-1.5 font-medium text-slate-600">{t.rememberMe}</span>
               </label>
-              <a href="#" className="font-semibold text-[#2563EB] hover:text-blue-700 transition-colors">
+              <a 
+                href="/forgot-password" 
+                onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }}
+                className="font-semibold text-[#2563EB] hover:text-blue-700 transition-colors"
+              >
                 {t.forgotPassword}
               </a>
             </div>
@@ -438,27 +302,36 @@ export default function Login() {
             </div>
           </form>
 
-          {/* Bottom Feature Badges */}
-          <div className="mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-slate-200/50">
-            <div className="h-[56px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
-              <div className="w-4.5 h-4.5 rounded-full bg-emerald-100/80 flex items-center justify-center text-[#10B981] mb-0.5">
-                <Shield className="w-3 h-3" />
-              </div>
-              <span className="text-[9.5px] font-semibold text-slate-700 leading-tight">{t.badgeSecurity}</span>
+          {/* Bottom Feature Badges & Sign Up Link */}
+          <div className="mt-4 pt-3 border-t border-slate-200/50 space-y-3">
+            <div className="text-center text-xs">
+              <span className="text-slate-500 font-medium">Don't have an account? </span>
+              <a href="/signup" onClick={(e) => { e.preventDefault(); navigate('/signup'); }} className="text-[#2563EB] font-bold hover:underline">
+                Sign Up
+              </a>
             </div>
 
-            <div className="h-[56px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
-              <div className="w-4.5 h-4.5 rounded-full bg-blue-100/80 flex items-center justify-center text-[#2563EB] mb-0.5">
-                <Languages className="w-3 h-3" />
+            <div className="grid grid-cols-3 gap-2">
+              <div className="h-[52px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
+                <div className="w-4 h-4 rounded-full bg-emerald-100/80 flex items-center justify-center text-[#10B981] mb-0.5">
+                  <Shield className="w-2.5 h-2.5" />
+                </div>
+                <span className="text-[9px] font-semibold text-slate-700 leading-tight">{t.badgeSecurity}</span>
               </div>
-              <span className="text-[9.5px] font-semibold text-slate-700 leading-tight">{t.badgeLanguages}</span>
-            </div>
 
-            <div className="h-[56px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
-              <div className="w-4.5 h-4.5 rounded-full bg-amber-100/80 flex items-center justify-center text-[#F59E0B] mb-0.5">
-                <Sparkles className="w-3 h-3" />
+              <div className="h-[52px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
+                <div className="w-4 h-4 rounded-full bg-blue-100/80 flex items-center justify-center text-[#2563EB] mb-0.5">
+                  <Languages className="w-2.5 h-2.5" />
+                </div>
+                <span className="text-[9px] font-semibold text-slate-700 leading-tight">{t.badgeLanguages}</span>
               </div>
-              <span className="text-[9.5px] font-semibold text-slate-700 leading-tight">{t.badgeAi}</span>
+
+              <div className="h-[52px] flex flex-col items-center justify-center text-center p-1 rounded-xl bg-white/80 border border-slate-100 shadow-2xs">
+                <div className="w-4 h-4 rounded-full bg-amber-100/80 flex items-center justify-center text-[#F59E0B] mb-0.5">
+                  <Sparkles className="w-2.5 h-2.5" />
+                </div>
+                <span className="text-[9px] font-semibold text-slate-700 leading-tight">{t.badgeAi}</span>
+              </div>
             </div>
           </div>
         </motion.div>

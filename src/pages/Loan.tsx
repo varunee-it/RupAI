@@ -1,9 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProgressStepper from '../components/ProgressStepper';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Loan() {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
-  const steps = ['Personal Details', 'Income', 'Documents', 'Review', 'Approved'];
+  const steps = [
+    t.loan.steps.personal,
+    t.loan.steps.income,
+    t.loan.steps.documents,
+    t.loan.steps.review,
+    t.loan.steps.approved
+  ];
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) setCurrentStep(c => c + 1);
@@ -17,8 +34,8 @@ export default function Loan() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="bg-card rounded-3xl p-8 shadow-soft border border-gray-50">
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Apply for a Loan</h2>
-          <p className="text-sm text-gray-500">Fast, paperless, and personalized for you.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.loan.title}</h2>
+          <p className="text-sm text-gray-500">{t.loan.subtitle}</p>
           <ProgressStepper steps={steps} currentStep={currentStep} />
         </div>
 

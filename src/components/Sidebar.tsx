@@ -1,19 +1,25 @@
 import { NavLink } from 'react-router-dom';
-import { Home, MessageSquare, CreditCard, Bell } from 'lucide-react';
+import { Home, MessageSquare, CreditCard, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { useProfile } from '../context/ProfileContext';
 
 export default function Sidebar() {
+  const { t } = useLanguage();
+  const { profile } = useProfile();
+
   const navItems = [
-    { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: MessageSquare, label: 'AI Chat', path: '/chat' },
-    { icon: CreditCard, label: 'Loan Journey', path: '/loan' },
-    { icon: Bell, label: 'Alerts', path: '/alerts' },
+    { icon: Home, label: t.sidebar.dashboard, path: '/dashboard' },
+    { icon: MessageSquare, label: t.sidebar.chat, path: '/chat' },
+    { icon: CreditCard, label: t.sidebar.loan, path: '/loan' },
+    { icon: Bell, label: t.sidebar.alerts, path: '/alerts' },
+    { icon: SettingsIcon, label: t.sidebar.settings, path: '/settings' },
   ];
 
   return (
-    <div className="w-64 bg-card shadow-soft flex flex-col h-full border-r border-gray-100">
+    <div className="w-64 bg-card dark:bg-slate-900 shadow-soft flex flex-col h-full border-r border-gray-100 dark:border-slate-800">
       <div className="p-6">
         <h1 className="text-2xl font-bold text-primary tracking-tight">RupAI</h1>
-        <p className="text-sm text-gray-500 mt-1">Banking for Bharat</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{t.common.appName}</p>
       </div>
       <nav className="flex-1 px-4 mt-6 space-y-2">
         {navItems.map((item) => (
@@ -24,7 +30,7 @@ export default function Sidebar() {
               `flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 ${
                 isActive
                   ? 'bg-primary text-white shadow-soft'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                  : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-primary'
               }`
             }
           >
@@ -33,16 +39,25 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <div className="p-6 border-t border-gray-100">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-            V
+      <div className="p-4 border-t border-gray-100 dark:border-slate-800">
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            `flex items-center space-x-3 p-2.5 rounded-2xl transition-all duration-200 cursor-pointer ${
+              isActive
+                ? 'bg-primary/10 border border-primary/20'
+                : 'hover:bg-gray-50 dark:hover:bg-slate-800'
+            }`
+          }
+        >
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-[#2563EB] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            {profile.initials}
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900">Varun</p>
-            <p className="text-xs text-gray-500">Premium User</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{profile.firstName}</p>
+            <p className="text-[11px] text-primary font-medium">{t.common.verifiedProfile}</p>
           </div>
-        </div>
+        </NavLink>
       </div>
     </div>
   );
